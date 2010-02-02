@@ -1,0 +1,6 @@
+= Sous Chef
+
+Chef's prep-cook
+
+Create bash scripts with chef-like syntax
+
