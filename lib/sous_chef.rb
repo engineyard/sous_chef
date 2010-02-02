@@ -1,12 +1,9 @@
 module SousChef
-  def self.prep(&block)
-    recipe = Recipe.new(&block)
-    recipe.to_script
-  end
+  autoload :Recipe,   'sous_chef/recipe'
+  autoload :Resource, 'sous_chef/resource'
 
-  class Recipe
-    def execute(name, &block)
-      Execute.new(name, &block)
-    end
+  def self.prep(*flags, &block)
+    recipe = Recipe.new(*flags, &block)
+    recipe.to_script
   end
 end
