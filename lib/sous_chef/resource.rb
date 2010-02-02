@@ -1,7 +1,8 @@
 module SousChef
   module Resource
-    autoload :Execute, 'sous_chef/resource/execute'
-    autoload :File,    'sous_chef/resource/file'
+    autoload :Directory, 'sous_chef/resource/directory'
+    autoload :Execute,   'sous_chef/resource/execute'
+    autoload :File,      'sous_chef/resource/file'
 
     class Base
       attr_reader :name
