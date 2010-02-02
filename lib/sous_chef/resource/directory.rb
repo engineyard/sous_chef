@@ -27,7 +27,7 @@ module SousChef
         @script ||= begin
           instance_eval(&block)
           %{
-mkdir -p "#{path}"
+mkdir -p #{escape_path(path)}
 #{mode_command}
           }.strip
         end
@@ -36,7 +36,7 @@ mkdir -p "#{path}"
       protected
         def mode_command
           if mode
-            sprintf(%{chmod %04o "%s"}, mode, path)
+            sprintf(%{chmod %04o %s}, mode, escape_path(path))
           end
         end
     end

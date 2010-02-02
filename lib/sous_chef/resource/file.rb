@@ -19,7 +19,7 @@ module SousChef
         @script ||= begin
           instance_eval(&block)
           %{
-if ! test -e "#{path}"; then
+if ! test -e #{escape_path(path)}; then
   #{file_creation_command}
 fi
 #{mode_command}
@@ -36,15 +36,9 @@ fi
 
         def file_creation_command
           if content
-            %{echo '#{escaped_content}' > "#{path}"}
+            %{echo '#{escaped_content}' > #{escape_path(path)}}
           else
-            %{touch "#{path}"}
-          end
-        end
-
-        def mode_command
-          if mode
-            sprintf(%{chmod %04o "%s"}, mode, path)
+            %{touch #{escape_path(path)}}
           end
         end
     end

@@ -28,6 +28,10 @@ module SousChef
             super
           end
         end
+
+        def escape_path(path)
+          %{"#{path}"}
+        end
     end
   end
 end

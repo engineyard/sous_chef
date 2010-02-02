@@ -14,7 +14,7 @@ module SousChef
           instance_eval(&block)
 
           lines = @commands.dup
-          lines.unshift(%{cd "#{@cwd}"}) if @cwd
+          lines.unshift(%{cd #{escape_path(@cwd)}}) if @cwd
           lines = lines.inject([]) do |result, line|
             result + line.split("\n")
           end
@@ -43,7 +43,7 @@ module SousChef
       end
 
       def creates(path)
-        @not_if_cmd = %{test -e "#{path}"}
+        @not_if_cmd = %{test -e #{escape_path(path)}}
       end
     end
   end
