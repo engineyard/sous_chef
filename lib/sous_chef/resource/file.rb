@@ -1,18 +1,10 @@
 module SousChef
   module Resource
-    class File < Base
+    class File < Directory
       attr_reader :name
 
       def initialize(context, name, &block)
         super
-      end
-
-      def path(path=nil)
-        if path.nil?
-          @path || name
-        else
-          @path = path
-        end
       end
 
       def content(content=nil)
@@ -20,14 +12,6 @@ module SousChef
           @content
         else
           @content = content
-        end
-      end
-
-      def mode(mode=nil)
-        if mode.nil?
-          @mode
-        else
-          @mode = mode
         end
       end
 
