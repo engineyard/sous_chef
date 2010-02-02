@@ -1,20 +1,17 @@
 module SousChef
   module Resource
-    class Execute
-      attr_reader :name
-
+    class Execute < Base
       def initialize(context, name, &block)
-        @context = context
+        super
+
         @commands = []
         @cwd = nil
         @not_if_cmd = nil
-        @block = block
-        @name = name
       end
 
       def to_script
         @script ||= begin
-          instance_eval(&@block)
+          instance_eval(&block)
 
           lines = @commands.dup
           lines.unshift(%{cd "#{@cwd}"}) if @cwd
@@ -48,20 +45,6 @@ module SousChef
       def creates(path)
         @not_if_cmd = %{test -e "#{path}"}
       end
-
-      alias_method :resource_respond_to?, :respond_to?
-      def respond_to?(meth)
-        super || @context.respond_to?(meth)
-      end
-
-      protected
-        def method_missing(meth, *args, &block)
-          if @context.respond_to?(meth)
-            @context.__send__(meth, *args, &block)
-          else
-            super
-          end
-        end
     end
   end
 end
