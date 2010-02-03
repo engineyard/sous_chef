@@ -2,5 +2,99 @@
 
 Chef's prep-cook
 
+== Description
+
 Create bash scripts with chef-like syntax
 
+== Example
+
+Given this code:
+
+    config = {:dir => '/home'}
+
+    SousChef.prep(:verbose, :shebang) do
+      halt_on_failed_command
+
+      log do
+        stdout "/root/stdout.log"
+        stderr "/root/stderr.log"
+      end
+
+      file "/etc/config.yml" do
+        content config.to_yaml
+        mode 0600
+      end
+
+      execute 'rvm' do
+        creates "/usr/local/rvm/scripts/rvm"
+        command "gem install rvm && rvm-install"
+      end
+
+      execute "source rvm" do
+        command <<-EOS
+    RUBYOPT=""
+    source /usr/local/rvm/scripts/rvm
+        EOS
+      end
+
+      gemfile config[:dir] do
+        source "http://gemcutter.org/"
+
+        gem 'chef'
+        gem 'dbi',          '0.4.3'
+        gem 'dbd-mysql',    '0.4.3'
+        gem 'open4',        '0.9.6'
+      end
+
+      execute 'install bundler' do
+        command "gem install bundler --no-ri --no-rdoc"
+      end
+
+      execute 'bundle gems' do
+        cwd config[:dir]
+        command "gem bundle"
+      end
+    end
+
+the return value will be:
+
+    #!/bin/bash
+
+    # halt on failed command
+    set -e
+
+    exec 1>/root/stdout.log 2>/root/stderr.log
+
+    # /etc/config.yml
+    if ! test -e /etc/config.yml; then
+      echo '--- 
+    :dir: /home
+    ' > /etc/config.yml
+    fi
+    chmod 0600 /etc/config.yml
+
+    # rvm
+    if ! test -e /usr/local/rvm/scripts/rvm; then
+      gem install rvm && rvm-install
+    fi
+
+    # source rvm
+    RUBYOPT=""
+    source /usr/local/rvm/scripts/rvm
+
+    # /home
+    if ! test -e /home/Gemfile; then
+      echo 'source "http://gemcutter.org/"
+
+    gem "chef"
+    gem "dbd-mysql", "0.4.3"
+    gem "dbi",       "0.4.3"
+    gem "open4",     "0.9.6"' > /home/Gemfile
+    fi
+
+    # install bundler
+    gem install bundler --no-ri --no-rdoc
+
+    # bundle gems
+    cd /home
+    gem bundle
