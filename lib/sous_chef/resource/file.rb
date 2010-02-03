@@ -29,9 +29,7 @@ fi
 
       protected
         def escaped_content
-          # many slashes because single-quote has some sort of
-          # special meaning in regexp replacement strings
-          content && content.gsub(/'/, %q{\\\\'})
+          escape_string(content)
         end
 
         def file_creation_command

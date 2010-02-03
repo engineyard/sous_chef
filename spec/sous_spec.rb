@@ -173,4 +173,13 @@ fi
       script.should == %{set -e}
     end
   end
+
+  describe "echo" do
+    it "echoes the given string" do
+      script = SousChef.prep do
+        echo "I'm in bash!"
+      end
+      script.should == %q{echo 'I\'m in bash!'}
+    end
+  end
 end

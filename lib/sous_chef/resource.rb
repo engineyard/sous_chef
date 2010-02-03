@@ -33,6 +33,12 @@ module SousChef
         def escape_path(path)
           path
         end
+
+        def escape_string(string)
+          # many slashes because single-quote has some sort of
+          # special meaning in regexp replacement strings
+          string && string.gsub(/'/, %q{\\\\'})
+        end
     end
   end
 end

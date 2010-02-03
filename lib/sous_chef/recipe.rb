@@ -19,6 +19,12 @@ module SousChef
       @flags.include?(:verbose)
     end
 
+    def echo(string)
+      execute "echo #{string}" do
+        command "echo '#{escape_string(string)}'"
+      end
+    end
+
     def execute(*args, &block)
       @resources << Resource::Execute.new(self, *args, &block)
     end
