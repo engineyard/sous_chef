@@ -182,6 +182,22 @@ fi
       script.should == %q{echo 'I\'m in bash!'}
     end
 
+    it "echoes from anywhere" do
+      script = SousChef.prep do
+        file "newfile.txt" do
+          echo "I'm in bash!"
+          content "something"
+        end
+      end
+      script.should == %q{
+if ! test -e newfile.txt; then
+  echo 'I\'m in bash!'
+  echo 'something' > newfile.txt
+fi
+      }.strip
+    end
+  end
+
   describe "gemfile" do
     it "creates a gemfile with the given path" do
       script = SousChef.prep do

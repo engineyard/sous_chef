@@ -1,50 +1,71 @@
 module SousChef
   class Recipe
-    attr_accessor :node
+    attr_accessor :node, :verbose, :shebang
+    alias_method :verbose?, :verbose
+    alias_method :shebang?, :shebang
 
     def initialize(*flags, &block)
-      @flags = flags
+      flags.each {|flag| __send__("#{flag}=", true)}
       @resources = []
-      instance_eval(&block)
+      @block = block
     end
 
-    def to_script
-      @resources.map do |resource|
-        @context = resource
-        script = ""
-        script << %{# #{resource.name}\n} if verbose? && resource.name
-        script << resource.to_script
-      end.join("\n\n")
+    def self.load(file)
+      new { instance_eval(File.read(file), file, 1) }
     end
 
-    def verbose?
-      @flags.include?(:verbose)
-    end
-
-    def echo(string)
-      execute "echo #{string}" do
-        command "echo '#{escape_string(string)}'"
+    def setup
+      if @block
+        instance_eval &@block
+        @block = nil
       end
     end
 
+    def to_script
+      @script ||= begin
+        setup
+        lines = []
+        lines << "#!/bin/bash" if shebang?
+        lines += @resources.map do |resource|
+          # @context = resource
+          script = ""
+          script << %{# #{resource.name}\n} if verbose? && resource.name
+          script << resource.to_script
+        end
+        lines.join("\n\n")
+      end
+    end
+
+    def echo(string)
+      command "echo '#{escape_string(string)}'"
+    end
+
     def execute(*args, &block)
-      @resources << Resource::Execute.new(self, *args, &block)
+      add_resource Resource::Execute.new(self, *args, &block)
     end
 
     def file(*args, &block)
-      @resources << Resource::File.new(self, *args, &block)
+      add_resource Resource::File.new(self, *args, &block)
     end
 
     def directory(*args, &block)
-      @resources << Resource::Directory.new(self, *args, &block)
+      add_resource Resource::Directory.new(self, *args, &block)
     end
 
     def log(*args, &block)
-      @resources << Resource::Log.new(self, *args, &block)
+      add_resource Resource::Log.new(self, *args, &block)
     end
 
     def gemfile(*args, &block)
-      @resources << Resource::Gemfile.new(self, *args, &block)
+      add_resource Resource::Gemfile.new(self, *args, &block)
+    end
+
+    def command(cmd)
+      if context
+        context.command(cmd)
+      else
+        execute { command cmd }
+      end
     end
 
     def halt_on_failed_command
@@ -54,9 +75,37 @@ module SousChef
     end
 
     protected
+      def add_resource(resource)
+        with_context(resource) do
+          @resources << resource
+          resource.setup
+        end
+        resource
+      end
+
+      def context
+        @context
+      end
+
+      def with_context(resource)
+        @context = resource
+        yield
+        @context = nil
+      end
+
+      def escape_path(path)
+        path
+      end
+
+      def escape_string(string)
+        # many slashes because single-quote has some sort of
+        # special meaning in regexp replacement strings
+        string && string.gsub(/'/, %q{\\\\'})
+      end
+
       def method_missing(meth, *args, &block)
-        if @context && @context.resource_respond_to?(meth)
-          @context.__send__(meth, *args, &block)
+        if context && context.resource_respond_to?(meth)
+          context.__send__(meth, *args, &block)
         else
           super
         end

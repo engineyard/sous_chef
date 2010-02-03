@@ -19,6 +19,24 @@ describe SousChef::Recipe do
         @recipe.to_script.should == "# run ls\nls"
       end
     end
+
+    describe "shebang" do
+      before do
+        @recipe = SousChef::Recipe.new(:shebang) do
+          execute "run ls" do
+            command "ls"
+          end
+        end
+      end
+
+      it "has shebang set" do
+        @recipe.should be_shebang
+      end
+
+      it "includes a shebang line" do
+        @recipe.to_script.should == "#!/bin/bash\n\nls"
+      end
+    end
   end
 
   it "doesn't change the script when run twice" do
@@ -29,5 +47,16 @@ describe SousChef::Recipe do
       end
     end
     recipe.to_script.should == recipe.to_script
+  end
+
+  describe ".load" do
+    before do
+      @recipe = SousChef::Recipe.load(File.dirname(__FILE__) + '/fixtures/deploy_command.rb')
+      @recipe.node = { :config => {}, :chef_args => "--main" }
+    end
+
+    it "loads a recipe from a file" do
+      @recipe.to_script.should == File.read(File.dirname(__FILE__) + '/fixtures/deploy_command_expected.sh').strip
+    end
   end
 end

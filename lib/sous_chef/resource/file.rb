@@ -1,30 +1,8 @@
 module SousChef
   module Resource
     class File < Directory
-      attr_reader :name
-
-      def initialize(context, name, &block)
-        super
-      end
-
       def content(content=nil)
-        if content.nil?
-          @content
-        else
-          @content = content
-        end
-      end
-
-      def to_script
-        @script ||= begin
-          instance_eval(&block) if block
-          %{
-if ! test -e #{escape_path(path)}; then
-  #{file_creation_command}
-fi
-#{mode_command}
-          }.strip
-        end
+        set_or_return(:content, content)
       end
 
       protected
@@ -32,7 +10,21 @@ fi
           escape_string(content)
         end
 
-        def file_creation_command
+        def create
+          not_if file_exist_command
+          command create_file_command
+        end
+
+        def delete
+          only_if file_exist_command
+          command "rm #{escape_path(path)}"
+        end
+
+        def file_exist_command
+          %{test -e #{escape_path(path)}}
+        end
+
+        def create_file_command
           if content
             %{echo '#{escaped_content}' > #{escape_path(path)}}
           else

@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe SousChef::Resource::Directory do
   before do
-    @directory = SousChef::Resource::Directory.new(nil, "bin") do
+    @directory = resource("bin") do
     end
     @directory.to_script # evaluate the block
   end
@@ -16,7 +16,7 @@ describe SousChef::Resource::Directory do
   end
 
   it "has a path as set when an explicit path is given" do
-    @directory = SousChef::Resource::Directory.new(nil, "bin") do
+    @directory = resource("bin") do
       path "/home/user/bin"
     end
     @directory.to_script # evaluate the block
@@ -27,8 +27,21 @@ describe SousChef::Resource::Directory do
     @directory.to_script.should == %{mkdir -p bin}
   end
 
+  it "allows deleting the directory" do
+    directory = resource("bin") do
+      action :delete
+    end
+    directory.to_script.should == %{rmdir bin}
+  end
+
+  it "raises an argument error on bad action" do
+    lambda {
+      resource("bin") { action :email }.setup
+    }.should raise_error(ArgumentError)
+  end
+
   it "sets the mode of the file" do
-    @directory = SousChef::Resource::Directory.new(nil, "bin") do
+    @directory = resource("bin") do
       mode 0600
     end
 

@@ -1,39 +1,47 @@
 module SousChef
   module Resource
     class Directory < Base
-      attr_reader :name
+      ACTIONS = %w[create delete]
 
-      def initialize(context, name, &block)
+      def initialize(*args)
+        action :create
         super
       end
 
       def path(path=nil)
-        if path.nil?
-          @path || name
-        else
-          @path = path
-        end
+        set_or_return(:path, path) || name
       end
 
       def mode(mode=nil)
-        if mode.nil?
-          @mode
-        else
-          @mode = mode
-        end
+        set_or_return(:mode, mode)
+      end
+
+      def action(action=nil)
+        set_or_return(:action, action && validate_action(action))
       end
 
       def to_script
         @script ||= begin
-          instance_eval(&block) if block
-          %{
-mkdir -p #{escape_path(path)}
-#{mode_command}
-          }.strip
+          setup
+          __send__(action)
+          [super, mode_command].compact.join("\n")
         end
       end
 
       protected
+        def create
+          command %{mkdir -p #{escape_path(path)}}
+        end
+
+        def delete
+          command %{rmdir #{escape_path(path)}}
+        end
+
+        def validate_action(action)
+          return action if ACTIONS.include?(action.to_s)
+          raise ArgumentError, "Invalid action #{action}, only #{ACTIONS.join(', ')} allowed"
+        end
+
         def mode_command
           if mode
             sprintf(%{chmod %04o %s}, mode, escape_path(path))

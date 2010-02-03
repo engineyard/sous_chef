@@ -2,10 +2,10 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe SousChef::Resource::File do
   before do
-    @file = SousChef::Resource::File.new(nil, "note.txt") do
+    @file = resource("note.txt") do
       content "this is a note"
     end
-    @file.to_script # evaluate the block
+    @file.setup # evaluate the block
   end
 
   it "has a name" do
@@ -17,11 +17,11 @@ describe SousChef::Resource::File do
   end
 
   it "has a path as set when an explicit path is given" do
-    @file = SousChef::Resource::File.new(nil, "note.txt") do
+    @file = resource("note.txt") do
       path "/home/user/note.txt"
       content "this is a note"
     end
-    @file.to_script # evaluate the block
+    @file.setup # evaluate the block
     @file.path.should == "/home/user/note.txt"
   end
 
@@ -30,8 +30,8 @@ describe SousChef::Resource::File do
   end
 
   it "has nil content when no content is given" do
-    @file = SousChef::Resource::File.new(nil, "note.txt")
-    @file.to_script # evaluate the block
+    @file = resource("note.txt")
+    @file.setup # evaluate the block
     @file.content.should == nil
   end
 
@@ -44,7 +44,7 @@ fi
   end
 
   it "handles single-quotes in the content" do
-    @file = SousChef::Resource::File.new(nil, "note.txt") do
+    @file = resource("note.txt") do
       content %{this is a 'note'}
     end
     @file.to_script.should == %q{
@@ -55,7 +55,7 @@ fi
   end
 
   it "handles dollar signs in the content without allowing them to expand" do
-    @file = SousChef::Resource::File.new(nil, "note.txt") do
+    @file = resource("note.txt") do
       content %{export PATH=/my/bin:$PATH}
     end
     @file.to_script.should == %q{
@@ -66,7 +66,7 @@ fi
   end
 
   it "handles newlines in the content" do
-    @file = SousChef::Resource::File.new(nil, "note.txt") do
+    @file = resource("note.txt") do
       content <<-EOS
 This
 is
@@ -88,7 +88,7 @@ fi
   end
 
   it "outputs the path instead of the name if it exists" do
-    @file = SousChef::Resource::File.new(nil, "note.txt") do
+    @file = resource("note.txt") do
       path "/home/user/note.txt"
       content %{this is a note}
     end
@@ -100,7 +100,7 @@ fi
   end
 
   it "touches the file if the content is nil" do
-    @file = SousChef::Resource::File.new(nil, "note.txt")
+    @file = resource("note.txt")
     @file.to_script.should == %q{
 if ! test -e note.txt; then
   touch note.txt
@@ -109,7 +109,7 @@ fi
   end
 
   it "sets the mode of the file" do
-    @file = SousChef::Resource::File.new(nil, "note.txt") do
+    @file = resource("note.txt") do
       mode 0600
     end
 
@@ -118,6 +118,18 @@ if ! test -e note.txt; then
   touch note.txt
 fi
 chmod 0600 note.txt
+    }.strip
+  end
+
+  it "deletes a file" do
+    @file = resource("note.txt") do
+      action :delete
+    end
+
+    @file.to_script.should == %q{
+if test -e note.txt; then
+  rm note.txt
+fi
     }.strip
   end
 end

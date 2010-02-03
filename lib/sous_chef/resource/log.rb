@@ -9,29 +9,21 @@ module SousChef
       end
 
       def stdout(stdout=nil)
-        if stdout.nil?
-          @stdout
-        else
-          @stdout = stdout
-        end
+        set_or_return(:stdout, stdout)
       end
 
       def stderr(stderr=nil)
-        if stderr.nil?
-          @stderr
-        else
-          @stderr = stderr
-        end
+        set_or_return(:stderr, stderr)
       end
 
       def to_script
         @script ||= begin
-          if block
-            instance_eval(&block)
-          else
+          setup
+          unless @stdout || @stderr
             @stdout, @stderr = name, "&1"
           end
-          exec_command(escape_path(@stdout), escape_path(@stderr))
+          append exec_command(escape_path(@stdout), escape_path(@stderr))
+          super
         end
       end
 
