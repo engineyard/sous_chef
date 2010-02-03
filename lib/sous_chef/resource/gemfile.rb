@@ -37,10 +37,16 @@ module SousChef
             result.puts
           end
 
-          @gems.each do |name, version|
-            result.print %{gem "#{name}"}
-            result.print %{, "#{version}"} if version
-            result.puts
+          max_name_size = 0
+          @gems.each {|name,| max_name_size = [max_name_size, name.size].max}
+
+          @gems.sort_by {|name,| name.downcase}.each do |name, version|
+            if version.nil?
+              result.puts %{gem "#{name}"}
+            else
+              width = max_name_size + 3 # 2 quotes + comma
+              result.printf %{gem %-#{width}s "%s"\n}, %{"#{name}",}, version
+            end
           end
 
           result.string.strip

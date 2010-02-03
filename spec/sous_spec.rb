@@ -186,14 +186,14 @@ fi
     it "creates a gemfile with the given path" do
       script = SousChef.prep do
         gemfile "/data/projects/foo" do
-          gem "rails"
-          gem "rack", "1.0.0"
+          gem "rails", "2.3.2"
+          gem "rack",  "1.0.0"
         end
       end
       script.should == %q{
 if ! test -e /data/projects/foo/Gemfile; then
-  echo 'gem "rails"
-gem "rack", "1.0.0"' > /data/projects/foo/Gemfile
+  echo 'gem "rack",  "1.0.0"
+gem "rails", "2.3.2"' > /data/projects/foo/Gemfile
 fi
       }.strip
     end
