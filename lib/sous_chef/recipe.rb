@@ -34,6 +34,11 @@ module SousChef
     def log(*args, &block)
       @resources << Resource::Log.new(self, *args, &block)
     end
+
+    def halt_on_failed_command
+      execute "halt on failed command" do
+        command "set -e"
+      end
     end
 
     protected

@@ -164,4 +164,13 @@ fi
       script.should == %{exec 1>stdout.log 2>stderr.log}
     end
   end
+
+  describe "halt_on_failed_command" do
+    it "outputs set -e" do
+      script = SousChef.prep do
+        halt_on_failed_command
+      end
+      script.should == %{set -e}
+    end
+  end
 end
