@@ -19,8 +19,17 @@ module SousChef
       @flags.include?(:verbose)
     end
 
-    def execute(name = nil, &block)
-      @resources << Resource::Execute.new(self, name, &block)
+    def execute(*args, &block)
+      @resources << Resource::Execute.new(self, *args, &block)
+    end
+
+    def file(*args, &block)
+      @resources << Resource::File.new(self, *args, &block)
+    end
+
+    def directory(*args, &block)
+      @resources << Resource::Directory.new(self, *args, &block)
+    end
     end
 
     protected
