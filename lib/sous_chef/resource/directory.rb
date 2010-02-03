@@ -25,7 +25,7 @@ module SousChef
 
       def to_script
         @script ||= begin
-          instance_eval(&block)
+          instance_eval(&block) if block
           %{
 mkdir -p #{escape_path(path)}
 #{mode_command}

@@ -17,7 +17,7 @@ module SousChef
 
       def to_script
         @script ||= begin
-          instance_eval(&block)
+          instance_eval(&block) if block
           %{
 if ! test -e #{escape_path(path)}; then
   #{file_creation_command}
