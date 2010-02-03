@@ -8,8 +8,8 @@ begin
     gem.name = "sous_chef"
     gem.summary = %Q{Chef's prep-cook}
     gem.description = %Q{Create bash scripts using a simple chef-like syntax}
-    gem.email = "martin.emde@gmail.com"
-    gem.homepage = "http://github.com/engineyard/sous"
+    gem.email = ["memde@engineyard.com", "bdonovan@engineyard.com"]
+    gem.homepage = "http://github.com/engineyard/sous_chef"
     gem.authors = ["Martin Emde", "Brian Donovan"]
 
     bundle = Bundler::Bundle.load(File.dirname(__FILE__) + '/Gemfile')
