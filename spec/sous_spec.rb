@@ -214,4 +214,16 @@ fi
       }.strip
     end
   end
+
+  describe "node" do
+    it "has a node accessible as set within the recipe" do
+      recipe = SousChef::Recipe.new do
+        execute "run a command" do
+          command "ls #{node[:dir]}"
+        end
+      end
+      recipe.node = { :dir => '/home' }
+      recipe.to_script.should == "ls /home"
+    end
+  end
 end

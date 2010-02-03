@@ -1,5 +1,7 @@
 module SousChef
   class Recipe
+    attr_accessor :node
+
     def initialize(*flags, &block)
       @flags = flags
       @resources = []
