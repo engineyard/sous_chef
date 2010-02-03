@@ -39,7 +39,7 @@ tar xvfz file.tgz
           cwd "/home/user"
         end
       end
-      script.should == %{cd "/home/user"}
+      script.should == %{cd /home/user}
     end
 
     it "changes the current working directory before any commands" do
@@ -49,7 +49,7 @@ tar xvfz file.tgz
           cwd "/home/user"
         end
       end
-      script.should == %{cd "/home/user"\ncp foo bar}
+      script.should == %{cd /home/user\ncp foo bar}
     end
 
     it "can use a method defined within the prep block" do
@@ -76,7 +76,7 @@ tar xvfz file.tgz
           command "gem bundle"
         end
       end
-      script.should == %{gem install bundler\n\ncd "/data/projects/foo"\ngem bundle}
+      script.should == %{gem install bundler\n\ncd /data/projects/foo\ngem bundle}
     end
 
     it "wraps commands in an if block on not_if" do
@@ -89,7 +89,7 @@ tar xvfz file.tgz
       end
       script.should == %{
 if ! test -d /data/projects/foo/vendor; then
-  cd "/data/projects/foo"
+  cd /data/projects/foo
   gem bundle
 fi
       }.strip
@@ -104,11 +104,36 @@ fi
         end
       end
       script.should == %{
-if ! test -e "/data/projects/foo/vendor"; then
-  cd "/data/projects/foo"
+if ! test -e /data/projects/foo/vendor; then
+  cd /data/projects/foo
   gem bundle
 fi
       }.strip
+    end
+  end
+
+  describe "file" do
+    it "creates a file" do
+      script = SousChef.prep do
+        file "bash config" do
+          path "~/.bash_profile"
+          content "export PATH=~/bin:$PATH"
+        end
+      end
+      script.should == %{
+if ! test -e ~/.bash_profile; then
+  echo 'export PATH=~/bin:$PATH' > ~/.bash_profile
+fi
+      }.strip
+    end
+  end
+
+  describe "directory" do
+    it "creates a directory" do
+      script = SousChef.prep do
+        directory "/usr/local/bin"
+      end
+      script.should == %{mkdir -p /usr/local/bin}
     end
   end
 end

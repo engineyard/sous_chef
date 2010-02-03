@@ -30,7 +30,7 @@ module SousChef
         end
 
         def escape_path(path)
-          %{"#{path}"}
+          path
         end
     end
   end

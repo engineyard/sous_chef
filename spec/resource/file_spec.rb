@@ -30,15 +30,15 @@ describe SousChef::Resource::File do
   end
 
   it "has nil content when no content is given" do
-    @file = SousChef::Resource::File.new(nil, "note.txt") {}
+    @file = SousChef::Resource::File.new(nil, "note.txt")
     @file.to_script # evaluate the block
     @file.content.should == nil
   end
 
   it "echos content to file" do
     @file.to_script.should == %{
-if ! test -e "note.txt"; then
-  echo 'this is a note' > "note.txt"
+if ! test -e note.txt; then
+  echo 'this is a note' > note.txt
 fi
     }.strip
   end
@@ -48,8 +48,8 @@ fi
       content %{this is a 'note'}
     end
     @file.to_script.should == %q{
-if ! test -e "note.txt"; then
-  echo 'this is a \'note\'' > "note.txt"
+if ! test -e note.txt; then
+  echo 'this is a \'note\'' > note.txt
 fi
     }.strip
   end
@@ -59,8 +59,8 @@ fi
       content %{export PATH=/my/bin:$PATH}
     end
     @file.to_script.should == %q{
-if ! test -e "note.txt"; then
-  echo 'export PATH=/my/bin:$PATH' > "note.txt"
+if ! test -e note.txt; then
+  echo 'export PATH=/my/bin:$PATH' > note.txt
 fi
     }.strip
   end
@@ -76,13 +76,13 @@ NOTE
       EOS
     end
     @file.to_script.should == %q{
-if ! test -e "note.txt"; then
+if ! test -e note.txt; then
   echo 'This
 is
 
 a
 NOTE
-' > "note.txt"
+' > note.txt
 fi
     }.strip
   end
@@ -93,17 +93,17 @@ fi
       content %{this is a note}
     end
     @file.to_script.should == %q{
-if ! test -e "/home/user/note.txt"; then
-  echo 'this is a note' > "/home/user/note.txt"
+if ! test -e /home/user/note.txt; then
+  echo 'this is a note' > /home/user/note.txt
 fi
     }.strip
   end
 
   it "touches the file if the content is nil" do
-    @file = SousChef::Resource::File.new(nil, "note.txt") {}
+    @file = SousChef::Resource::File.new(nil, "note.txt")
     @file.to_script.should == %q{
-if ! test -e "note.txt"; then
-  touch "note.txt"
+if ! test -e note.txt; then
+  touch note.txt
 fi
     }.strip
   end
@@ -114,10 +114,10 @@ fi
     end
 
     @file.to_script.should == %q{
-if ! test -e "note.txt"; then
-  touch "note.txt"
+if ! test -e note.txt; then
+  touch note.txt
 fi
-chmod 0600 "note.txt"
+chmod 0600 note.txt
     }.strip
   end
 end

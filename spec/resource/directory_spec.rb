@@ -24,7 +24,7 @@ describe SousChef::Resource::Directory do
   end
 
   it "creates the directory" do
-    @directory.to_script.should == %{mkdir -p "bin"}
+    @directory.to_script.should == %{mkdir -p bin}
   end
 
   it "sets the mode of the file" do
@@ -33,8 +33,8 @@ describe SousChef::Resource::Directory do
     end
 
     @directory.to_script.should == %q{
-mkdir -p "bin"
-chmod 0600 "bin"
+mkdir -p bin
+chmod 0600 bin
     }.strip
   end
 end
