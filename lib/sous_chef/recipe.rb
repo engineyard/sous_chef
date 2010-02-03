@@ -41,6 +41,10 @@ module SousChef
       @resources << Resource::Log.new(self, *args, &block)
     end
 
+    def gemfile(*args, &block)
+      @resources << Resource::Gemfile.new(self, *args, &block)
+    end
+
     def halt_on_failed_command
       execute "halt on failed command" do
         command "set -e"

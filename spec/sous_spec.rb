@@ -181,5 +181,37 @@ fi
       end
       script.should == %q{echo 'I\'m in bash!'}
     end
+
+  describe "gemfile" do
+    it "creates a gemfile with the given path" do
+      script = SousChef.prep do
+        gemfile "/data/projects/foo" do
+          gem "rails"
+          gem "rack", "1.0.0"
+        end
+      end
+      script.should == %q{
+if ! test -e /data/projects/foo/Gemfile; then
+  echo 'gem "rails"
+gem "rack", "1.0.0"' > /data/projects/foo/Gemfile
+fi
+      }.strip
+    end
+
+    it "can have sources" do
+      script = SousChef.prep do
+        gemfile "/data/projects/foo" do
+          gem "rails"
+          source 'http://gems.engineyard.com/'
+        end
+      end
+      script.should == %q{
+if ! test -e /data/projects/foo/Gemfile; then
+  echo 'source "http://gems.engineyard.com/"
+
+gem "rails"' > /data/projects/foo/Gemfile
+fi
+      }.strip
+    end
   end
 end
