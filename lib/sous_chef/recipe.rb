@@ -30,6 +30,10 @@ module SousChef
     def directory(*args, &block)
       @resources << Resource::Directory.new(self, *args, &block)
     end
+
+    def log(*args, &block)
+      @resources << Resource::Log.new(self, *args, &block)
+    end
     end
 
     protected

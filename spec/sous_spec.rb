@@ -136,4 +136,32 @@ fi
       script.should == %{mkdir -p /usr/local/bin}
     end
   end
+
+  describe "log" do
+    it "sets logging to a file" do
+      script = SousChef.prep do
+        log "~/script.log"
+      end
+      script.should == %{exec 1>~/script.log 2>&1}
+    end
+
+    it "allows logging stdout only" do
+      script = SousChef.prep do
+        log do
+          stdout "stdout.log"
+        end
+      end
+      script.should == %{exec 1>stdout.log}
+    end
+
+    it "allows logging stdout and stderr" do
+      script = SousChef.prep do
+        log do
+          stdout "stdout.log"
+          stderr "stderr.log"
+        end
+      end
+      script.should == %{exec 1>stdout.log 2>stderr.log}
+    end
+  end
 end

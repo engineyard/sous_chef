@@ -3,6 +3,7 @@ module SousChef
     autoload :Directory, 'sous_chef/resource/directory'
     autoload :Execute,   'sous_chef/resource/execute'
     autoload :File,      'sous_chef/resource/file'
+    autoload :Log,       'sous_chef/resource/log'
 
     class Base
       attr_reader :name
