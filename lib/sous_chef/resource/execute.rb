@@ -9,6 +9,7 @@ module SousChef
 
       def to_script
         @script ||= begin
+          setup
           prepend %{cd #{escape_path(@cwd)}} if @cwd
           @commands = @commands.inject([]) do |result, line|
             result + line.split("\n")

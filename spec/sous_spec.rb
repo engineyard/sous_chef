@@ -8,7 +8,7 @@ describe SousChef do
           command "ls"
         end
       end
-      script.should == "ls"
+      script.should == "ls\n"
     end
 
     it "concatenates multiple commands" do
@@ -18,7 +18,7 @@ describe SousChef do
           command "tar xvfz file.tgz"
         end
       end
-      script.should == "curl -O http://www.example.com/file.tgz\ntar xvfz file.tgz"
+      script.should == "curl -O http://www.example.com/file.tgz\ntar xvfz file.tgz\n"
     end
 
     it "respects multiline commands" do
@@ -30,7 +30,7 @@ tar xvfz file.tgz
           CODE
         end
       end
-      script.should == "curl -O http://www.example.com/file.tgz\ntar xvfz file.tgz"
+      script.should == "curl -O http://www.example.com/file.tgz\ntar xvfz file.tgz\n"
     end
 
     it "changes current working directory on cwd" do
@@ -39,7 +39,7 @@ tar xvfz file.tgz
           cwd "/home/user"
         end
       end
-      script.should == %{cd /home/user}
+      script.should == "cd /home/user\n"
     end
 
     it "changes the current working directory before any commands" do
@@ -49,7 +49,7 @@ tar xvfz file.tgz
           cwd "/home/user"
         end
       end
-      script.should == %{cd /home/user\ncp foo bar}
+      script.should == "cd /home/user\ncp foo bar\n"
     end
 
     it "can use a method defined within the prep block" do
@@ -62,7 +62,7 @@ tar xvfz file.tgz
           report "`date`"
         end
       end
-      script.should == %{echo `date`}
+      script.should == "echo `date`\n"
     end
 
     it "scopes cwd to the correct execute block" do
@@ -76,7 +76,7 @@ tar xvfz file.tgz
           command "gem bundle"
         end
       end
-      script.should == %{gem install bundler\n\ncd /data/projects/foo\ngem bundle}
+      script.should == "gem install bundler\n\ncd /data/projects/foo\ngem bundle\n"
     end
 
     it "wraps commands in an if block on not_if" do
@@ -87,12 +87,12 @@ tar xvfz file.tgz
           not_if "test -d /data/projects/foo/vendor"
         end
       end
-      script.should == %{
+      script.should == <<-EOSH
 if ! test -d /data/projects/foo/vendor; then
   cd /data/projects/foo
   gem bundle
 fi
-      }.strip
+      EOSH
     end
 
     it "wraps commands in an if block with test -e on creates" do
@@ -103,12 +103,12 @@ fi
           command "gem bundle"
         end
       end
-      script.should == %{
+      script.should == <<-EOSH
 if ! test -e /data/projects/foo/vendor; then
   cd /data/projects/foo
   gem bundle
 fi
-      }.strip
+      EOSH
     end
   end
 
@@ -120,11 +120,13 @@ fi
           content "export PATH=~/bin:$PATH"
         end
       end
-      script.should == %{
+      script.should == <<-EOSH
 if ! test -e ~/.bash_profile; then
-  echo 'export PATH=~/bin:$PATH' > ~/.bash_profile
+  cat <<'SousChefHeredoc' > ~/.bash_profile
+export PATH=~/bin:\$PATH
+SousChefHeredoc
 fi
-      }.strip
+      EOSH
     end
   end
 
@@ -133,7 +135,7 @@ fi
       script = SousChef.prep do
         directory "/usr/local/bin"
       end
-      script.should == %{mkdir -p /usr/local/bin}
+      script.should == "mkdir -p /usr/local/bin\n"
     end
   end
 
@@ -142,7 +144,7 @@ fi
       script = SousChef.prep do
         log "~/script.log"
       end
-      script.should == %{exec 1>~/script.log 2>&1}
+      script.should == "exec 1>~/script.log 2>&1\n"
     end
 
     it "allows logging stdout only" do
@@ -151,7 +153,7 @@ fi
           stdout "stdout.log"
         end
       end
-      script.should == %{exec 1>stdout.log}
+      script.should == "exec 1>stdout.log\n"
     end
 
     it "allows logging stdout and stderr" do
@@ -161,7 +163,7 @@ fi
           stderr "stderr.log"
         end
       end
-      script.should == %{exec 1>stdout.log 2>stderr.log}
+      script.should == "exec 1>stdout.log 2>stderr.log\n"
     end
   end
 
@@ -170,7 +172,7 @@ fi
       script = SousChef.prep do
         halt_on_failed_command
       end
-      script.should == %{set -e}
+      script.should == "set -e\n"
     end
   end
 
@@ -179,7 +181,7 @@ fi
       script = SousChef.prep do
         echo "I'm in bash!"
       end
-      script.should == %q{echo 'I\'m in bash!'}
+      script.should == %{echo 'I'"'"'m in bash!'\n}
     end
 
     it "echoes from anywhere" do
@@ -189,12 +191,14 @@ fi
           content "something"
         end
       end
-      script.should == %q{
+      script.should == <<-EOSH
 if ! test -e newfile.txt; then
-  echo 'I\'m in bash!'
-  echo 'something' > newfile.txt
+  echo 'I'"'"'m in bash!'
+  cat <<'SousChefHeredoc' > newfile.txt
+something
+SousChefHeredoc
 fi
-      }.strip
+      EOSH
     end
   end
 
@@ -206,12 +210,14 @@ fi
           gem "rack",  "1.0.0"
         end
       end
-      script.should == %q{
+      script.should == <<-EOSH
 if ! test -e /data/projects/foo/Gemfile; then
-  echo 'gem "rack",  "1.0.0"
-gem "rails", "2.3.2"' > /data/projects/foo/Gemfile
+  cat <<'SousChefHeredoc' > /data/projects/foo/Gemfile
+gem "rack",  "1.0.0"
+gem "rails", "2.3.2"
+SousChefHeredoc
 fi
-      }.strip
+      EOSH
     end
 
     it "can have sources" do
@@ -221,13 +227,15 @@ fi
           source 'http://gems.engineyard.com/'
         end
       end
-      script.should == %q{
+      script.should == <<-EOSH
 if ! test -e /data/projects/foo/Gemfile; then
-  echo 'source "http://gems.engineyard.com/"
+  cat <<'SousChefHeredoc' > /data/projects/foo/Gemfile
+source "http://gems.engineyard.com/"
 
-gem "rails"' > /data/projects/foo/Gemfile
+gem "rails"
+SousChefHeredoc
 fi
-      }.strip
+      EOSH
     end
   end
 
@@ -239,7 +247,7 @@ fi
         end
       end
       recipe.node = { :dir => '/home' }
-      recipe.to_script.should == "ls /home"
+      recipe.to_script.should == "ls /home\n"
     end
   end
 end

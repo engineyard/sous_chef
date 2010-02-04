@@ -7,7 +7,7 @@ module SousChef
 
       protected
         def escaped_content
-          escape_string(content)
+          content#.gsub('$', '\$')
         end
 
         def create
@@ -24,9 +24,21 @@ module SousChef
           %{test -e #{escape_path(path)}}
         end
 
+        def heredoc
+          @heredoc ||= begin
+            candidate = "SousChefHeredoc"
+            candidate += "1" while content.include?(candidate)
+            candidate
+          end
+        end
+
         def create_file_command
           if content
-            %{echo '#{escaped_content}' > #{escape_path(path)}}
+            lines = []
+            lines << "cat <<'#{heredoc}' > #{escape_path(path)}"
+            lines << escaped_content
+            lines << heredoc
+            lines.join("\n")
           else
             %{touch #{escape_path(path)}}
           end

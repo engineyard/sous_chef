@@ -7,9 +7,11 @@ if test -e /root/report.log; then
 fi
 
 if ! test -e /etc/config.yml; then
-  echo '--- {}
+  cat <<'SousChefHeredoc' > /etc/config.yml
+--- {}
 
-' > /etc/config.yml
+
+SousChefHeredoc
 fi
 chmod 0600 /etc/config.yml
 
@@ -23,10 +25,12 @@ source /usr/local/rvm/scripts/rvm
 
 if ! test -e /etc/profile.d/rvm.sh; then
   echo 'Setting up rvm source'
-  echo '# rvm configuration
+  cat <<'SousChefHeredoc' > /etc/profile.d/rvm.sh
+# rvm configuration
 RUBYOPT=""
 if [[ -s /usr/local/rvm/scripts/rvm ]] ; then source /usr/local/rvm/scripts/rvm ; fi
-' > /etc/profile.d/rvm.sh
+
+SousChefHeredoc
 fi
 
 echo 'installing ruby'
@@ -49,12 +53,14 @@ mkdir -p /home/sous_chef
 chmod 0755 /home/sous_chef
 
 if ! test -e /home/sous_chef/Gemfile; then
-  echo 'source "http://gemcutter.org/"
+  cat <<'SousChefHeredoc' > /home/sous_chef/Gemfile
+source "http://gemcutter.org/"
 
 gem "chef"
 gem "dbd-mysql", "0.4.3"
 gem "dbi",       "0.4.3"
-gem "open4",     "0.9.6"' > /home/sous_chef/Gemfile
+gem "open4",     "0.9.6"
+SousChefHeredoc
 fi
 
 gem install bundler --no-ri --no-rdoc
@@ -64,9 +70,11 @@ gem bundle
 
 if ! test -e /etc/profile.d/bin-path.sh; then
   echo 'Setting up bin-path'
-  echo '# bundled gem bin path configuration
+  cat <<'SousChefHeredoc' > /etc/profile.d/bin-path.sh
+# bundled gem bin path configuration
 export PATH=/home/sous_chef/bin:$PATH
-' > /etc/profile.d/bin-path.sh
+
+SousChefHeredoc
 fi
 
 nohup /home/sous_chef/bin/chef --main &

@@ -32,7 +32,8 @@ module SousChef
           script << %{# #{resource.name}\n} if verbose? && resource.name
           script << resource.to_script
         end
-        lines.join("\n\n")
+        # add a trailing newline for consistency and vim-friendliness
+        lines.join("\n\n") << "\n"
       end
     end
 
@@ -98,9 +99,12 @@ module SousChef
       end
 
       def escape_string(string)
-        # many slashes because single-quote has some sort of
-        # special meaning in regexp replacement strings
-        string && string.gsub(/'/, %q{\\\\'})
+        # bash is completely insane
+        # this stops the quote, immediately starts another one using
+        # double quotes to insert the single quote, then resumes the
+        # single quote again until the terminating single quote
+        return if string.nil?
+        string.gsub("'", %q{'"'"'})
       end
 
       def method_missing(meth, *args, &block)

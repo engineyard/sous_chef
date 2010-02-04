@@ -16,7 +16,7 @@ describe SousChef::Recipe do
       end
 
       it "includes comments" do
-        @recipe.to_script.should == "# run ls\nls"
+        @recipe.to_script.should == "# run ls\nls\n"
       end
     end
 
@@ -34,7 +34,7 @@ describe SousChef::Recipe do
       end
 
       it "includes a shebang line" do
-        @recipe.to_script.should == "#!/bin/bash\n\nls"
+        @recipe.to_script.should == "#!/bin/bash\n\nls\n"
       end
     end
   end
@@ -56,7 +56,7 @@ describe SousChef::Recipe do
     end
 
     it "loads a recipe from a file" do
-      @recipe.to_script.should == File.read(File.dirname(__FILE__) + '/fixtures/deploy_command_expected.sh').strip
+      @recipe.to_script.should == File.read(File.dirname(__FILE__) + '/fixtures/deploy_command_expected.sh')
     end
   end
 end

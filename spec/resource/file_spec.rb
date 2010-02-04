@@ -35,10 +35,12 @@ describe SousChef::Resource::File do
     @file.content.should == nil
   end
 
-  it "echos content to file" do
+  it "cats content to file" do
     @file.to_script.should == %{
 if ! test -e note.txt; then
-  echo 'this is a note' > note.txt
+  cat <<'SousChefHeredoc' > note.txt
+this is a note
+SousChefHeredoc
 fi
     }.strip
   end
@@ -49,7 +51,9 @@ fi
     end
     @file.to_script.should == %q{
 if ! test -e note.txt; then
-  echo 'this is a \'note\'' > note.txt
+  cat <<'SousChefHeredoc' > note.txt
+this is a 'note'
+SousChefHeredoc
 fi
     }.strip
   end
@@ -58,11 +62,26 @@ fi
     @file = resource("note.txt") do
       content %{export PATH=/my/bin:$PATH}
     end
-    @file.to_script.should == %q{
+    @file.to_script.should == <<-EOSH.chomp
 if ! test -e note.txt; then
-  echo 'export PATH=/my/bin:$PATH' > note.txt
+  cat <<'SousChefHeredoc' > note.txt
+export PATH=/my/bin:$PATH
+SousChefHeredoc
 fi
-    }.strip
+    EOSH
+  end
+
+  it "changes it's heredoc if the content of the file contains the heredoc" do
+    @file = resource("note.txt") do
+      content %{SousChefHeredoc}
+    end
+    @file.to_script.should == <<-EOSH.chomp
+if ! test -e note.txt; then
+  cat <<'SousChefHeredoc1' > note.txt
+SousChefHeredoc
+SousChefHeredoc1
+fi
+    EOSH
   end
 
   it "handles newlines in the content" do
@@ -75,16 +94,18 @@ a
 NOTE
       EOS
     end
-    @file.to_script.should == %q{
+    @file.to_script.should == <<-EOSH.chomp
 if ! test -e note.txt; then
-  echo 'This
+  cat <<'SousChefHeredoc' > note.txt
+This
 is
 
 a
 NOTE
-' > note.txt
+
+SousChefHeredoc
 fi
-    }.strip
+    EOSH
   end
 
   it "outputs the path instead of the name if it exists" do
@@ -94,7 +115,9 @@ fi
     end
     @file.to_script.should == %q{
 if ! test -e /home/user/note.txt; then
-  echo 'this is a note' > /home/user/note.txt
+  cat <<'SousChefHeredoc' > /home/user/note.txt
+this is a note
+SousChefHeredoc
 fi
     }.strip
   end
