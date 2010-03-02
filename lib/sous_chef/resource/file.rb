@@ -2,7 +2,7 @@ module SousChef
   module Resource
     class File < Directory
       def content(content=nil)
-        set_or_return(:content, content)
+        set_or_return(:content, content.to_s)
       end
 
       protected
