@@ -45,6 +45,18 @@ fi
     }.strip
   end
 
+  it "overwrites files with force true" do
+    @file = resource("note.txt") do
+      content %{new content}
+      force true
+    end
+    @file.to_script.should == %{
+cat <<'SousChefHeredoc' > note.txt
+new content
+SousChefHeredoc
+    }.strip
+  end
+
   it "handles single-quotes in the content" do
     @file = resource("note.txt") do
       content %{this is a 'note'}
@@ -153,6 +165,17 @@ chmod 0600 note.txt
 if test -e note.txt; then
   rm note.txt
 fi
+    }.strip
+  end
+
+  it "force deletes a file" do
+    @file = resource("note.txt") do
+      action :delete
+      force true
+    end
+
+    @file.to_script.should == %q{
+rm -f note.txt
     }.strip
   end
 end

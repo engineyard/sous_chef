@@ -40,7 +40,7 @@ describe SousChef::Resource::Directory do
     }.should raise_error(ArgumentError)
   end
 
-  it "sets the mode of the file" do
+  it "sets the mode of the directory" do
     @directory = resource("bin") do
       mode 0600
     end
@@ -49,5 +49,13 @@ describe SousChef::Resource::Directory do
 mkdir -p bin
 chmod 0600 bin
     }.strip
+  end
+
+  it "force deletes the directory" do
+    directory = resource("bin") do
+      action :delete
+      force true
+    end
+    directory.to_script.should == %{rm -rf bin}
   end
 end

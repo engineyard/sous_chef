@@ -5,6 +5,7 @@ module SousChef
 
       def initialize(*args)
         action :create
+        force false
         super
       end
 
@@ -18,6 +19,14 @@ module SousChef
 
       def action(action=nil)
         set_or_return(:action, action && validate_action(action))
+      end
+
+      def force(forced)
+        @forced = forced
+      end
+
+      def forced?
+        @forced
       end
 
       def to_script
@@ -34,7 +43,8 @@ module SousChef
         end
 
         def delete
-          command %{rmdir #{escape_path(path)}}
+          cmd = forced?? 'rm -rf' : 'rmdir'
+          command %{#{cmd} #{escape_path(path)}}
         end
 
         def validate_action(action)

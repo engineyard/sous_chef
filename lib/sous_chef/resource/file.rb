@@ -11,13 +11,13 @@ module SousChef
         end
 
         def create
-          not_if file_exist_command
+          not_if file_exist_command unless forced?
           command create_file_command
         end
 
         def delete
-          only_if file_exist_command
-          command "rm #{escape_path(path)}"
+          only_if file_exist_command unless forced?
+          command "rm #{'-f ' if forced?}#{escape_path(path)}"
         end
 
         def file_exist_command
