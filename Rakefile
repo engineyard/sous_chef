@@ -1,5 +1,5 @@
 require 'bundler'
-Bundler.require_env
+Bundler.require
 require 'rake'
 
 begin
@@ -12,11 +12,9 @@ begin
     gem.homepage = "http://github.com/engineyard/sous_chef"
     gem.authors = ["Martin Emde", "Brian Donovan"]
 
-    bundle = Bundler::Bundle.load(File.dirname(__FILE__) + '/Gemfile')
-    bundle.environment.dependencies.each do |d|
-      if d.only && d.only.include?('runtime')
-        gem.add_dependency d.name, d.version.to_s
-      end
+    bundle = Bundler::Definition.from_gemfile('Gemfile')
+    bundle.dependencies.each do |dep|
+        gem.add_dependency(dep.name, dep.requirement.to_s) if dep.groups.include?(:runtime)
     end
   end
   Jeweler::GemcutterTasks.new

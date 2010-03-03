@@ -1,13 +1,12 @@
-bin_path 'gbin'
-disable_system_gems
+source :gemcutter
 
-only :runtime do
+group :runtime do
 end
- 
-only :development do
+
+group :development do
   gem 'bundler'
   gem 'jeweler'
-  gem 'rspec', :require_as => 'spec'
+  gem 'rspec', :require => 'spec'
   gem 'ZenTest'
   gem 'rake'
   gem 'rcov'
