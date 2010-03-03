@@ -2,12 +2,12 @@ module SousChef
   module Resource
     class File < Directory
       def content(content=nil)
-        set_or_return(:content, content.to_s)
+        set_or_return(:content, content && content.to_s)
       end
 
       protected
         def escaped_content
-          content#.gsub('$', '\$')
+          content
         end
 
         def create
