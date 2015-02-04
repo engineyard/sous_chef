@@ -22,3 +22,4 @@ pkg
 Gemfile.lock
 
 ## PROJECT::SPECIFIC
+sous_chef-*.gem
