@@ -19,6 +19,6 @@ doc
 rdoc
 pkg
 .yardoc
+Gemfile.lock
 
 ## PROJECT::SPECIFIC
-sous_chef.gemspec

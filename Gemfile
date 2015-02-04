@@ -1,17 +1,6 @@
-source :gemcutter
-
-group :runtime do
-end
+source 'https://rubygems.org'
 
 group :development do
-  gem 'bundler'
-  gem 'jeweler'
-  gem 'rspec', :require => 'spec'
-  gem 'ZenTest'
+  gem 'rspec', '~> 1.3'
   gem 'rake'
-  gem 'rcov'
-  gem 'ruby-debug'
-  gem 'yard'
-  gem 'reek'
-  gem 'roodi'
 end

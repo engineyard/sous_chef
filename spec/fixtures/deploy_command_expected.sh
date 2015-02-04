@@ -10,7 +10,6 @@ if ! test -e /etc/config.yml; then
   cat <<'SousChefHeredoc' > /etc/config.yml
 --- {}
 
-
 SousChefHeredoc
 fi
 chmod 0600 /etc/config.yml

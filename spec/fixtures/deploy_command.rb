@@ -1,3 +1,5 @@
+require 'yaml'
+
 ruby_version = 'ruby-1.8.6'
 rubygems_version = '1.3.5'
 home_dir = '/home/sous_chef'
@@ -18,7 +20,7 @@ def report(message)
 end
 
 file "/etc/config.yml" do
-  content node[:config].to_yaml
+  content YAML.dump(node[:config])
   mode 0600
 end
 

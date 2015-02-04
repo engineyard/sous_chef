@@ -18,9 +18,4 @@ describe SousChef::Resource::Gemfile do
     gemfile = resource('/path/to/project')
     gemfile.path.should == '/path/to/project/Gemfile'
   end
-
-  it "makes content a protected method" do
-    gemfile = resource('/path/to/project')
-    gemfile.protected_methods.should include('content')
-  end
 end
