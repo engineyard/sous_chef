@@ -75,44 +75,43 @@ module SousChef
       end
     end
 
-    protected
-      def add_resource(resource)
-        with_context(resource) do
-          @resources << resource
-          resource.setup
-        end
-        resource
+    def add_resource(resource)
+      with_context(resource) do
+        @resources << resource
+        resource.setup
       end
+      resource
+    end
 
-      def context
-        @context
-      end
+    def context
+      @context
+    end
 
-      def with_context(resource)
-        @context = resource
-        yield
-        @context = nil
-      end
+    def with_context(resource)
+      @context = resource
+      yield
+      @context = nil
+    end
 
-      def escape_path(path)
-        path
-      end
+    def escape_path(path)
+      path
+    end
 
-      def escape_string(string)
-        # bash is completely insane
-        # this stops the quote, immediately starts another one using
-        # double quotes to insert the single quote, then resumes the
-        # single quote again until the terminating single quote
-        return if string.nil?
-        string.gsub("'", %q{'"'"'})
-      end
+    def escape_string(string)
+      # bash is completely insane
+      # this stops the quote, immediately starts another one using
+      # double quotes to insert the single quote, then resumes the
+      # single quote again until the terminating single quote
+      return if string.nil?
+      string.gsub("'", %q{'"'"'})
+    end
 
-      def method_missing(meth, *args, &block)
-        if context && context.resource_respond_to?(meth)
-          context.__send__(meth, *args, &block)
-        else
-          super
-        end
+    def method_missing(meth, *args, &block)
+      if context && context.resource_respond_to?(meth)
+        context.__send__(meth, *args, &block)
+      else
+        super
       end
+    end
   end
 end
