@@ -1,6 +1,12 @@
 = Sous Chef
 
-Chef's prep-cook
+This gem is now unused and will likely go unmaintained.
+
+File issues if you wish to attempt revival.
+
+Thank you for your interest.
+
+- Engine Yard Team
 
 == Description
 
